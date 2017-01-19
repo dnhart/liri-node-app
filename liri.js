@@ -6,14 +6,15 @@ var omdb = require('omdb');
 var keys =require('./keys.js'); 
 // var randomText =require('./random.txt'); 
 
-
+var divider ="****************************";
 var input= process.argv;
 var action = process.argv[2];
 var searchTerm = input.slice(3);
 searchTerm = searchTerm.toString();
 serachTerm = searchTerm.replace(/,/g, '+');
-
-fs.appendFile("log.txt", input, function(err, data) {});
+var logSearch = action +" "+searchTerm;
+logSearch = logSearch.toString().replace(/,/g, ' ');
+fs.appendFile("log.txt", logSearch+"\r\n", function(err, data) {});
 
 
 function inquiry(action) {
@@ -33,15 +34,30 @@ case "my-tweets":
 	var params = {screen_name: 'dnhart'};
 
 	client.get('statuses/user_timeline', params, function(error, tweets, response) {
+
+		
+
 	  if (!error) {
 	  	var i=0;
 
-	  	//I did 10 because I don't have 20 tweets
-		 while(i<10){
-		 	console.log(tweets[i].text);
-		 	console.log(tweets[i].created_at);
+	  	
+		 while(i<20){
+		 	
+		 	var tweetText="Tweet #"+i+" text:"+tweets[i].text;
+		 	var tweetDate="Tweet #"+i+" date:"+tweets[i].created_at
+		 	
+
+		 	console.log(tweetText);
+		 	console.log(tweetDate);
+		
+
+			var logTweet= tweetText+"\r\n"+tweetDate+"\r\n"+"\r\n";
+     		logTweet = logTweet.toString();
+		 	fs.appendFile("log.txt", logTweet, function(err, data) {});
+
 		 	i++;
 		 };
+		 // console.log(myTweets);
 	  } else {
 	  	console.log("error happened");
 	  }
@@ -61,11 +77,26 @@ case "spotify-this-song":
 	 } else {
 	      spotify.lookup({ type: 'track', id: '3DYVWvPh3kGwPasp7yjahc'}, function(err, data) {
 	    if (!err){
-	      console.log(data.name);
-	      console.log(data.artists[0].name);
-	      console.log(data.preview_url);
+	    	var results = {
+	    		SongName: data.name,
+	    		SongArtist: data.artists[0].name,
+	    		SongURL: data.preview_url
+	    	};
+
+	    	console.log("Song Title: "+ results.SongName);
+     		console.log("Song Artist(s): "+ results.SongArtist);
+     		console.log("Song URL: "+ results.SongURL);
+
+
+	    	//console.log (results);
+			var logSong= "Song Title: "+ results.SongName+"\r\n"+"Song Artist(s): "+results.SongArtist+"\r\n"+"Song URL: "+results.SongURL+"\r\n";
+     		logSong = logSong.toString();
+        	fs.appendFile("log.txt", logSong+"\r\n", function(err, data) {});
+	      // console.log(data.name);
+	      // console.log(data.artists[0].name);
+	      // console.log(data.preview_url);
 	  } else {
-	        console.log('Spotify is not working');
+	        console.log('Please check your spelling.');
 	  };
 	      });
 	 };
@@ -94,12 +125,17 @@ break;
 case "do-what-it-says":
 
 fs.readFile("random.txt", "utf8", function(err, contents) {
+	  if (!err){
 	var data = contents.split(",");
 	//console.log(data);
 	action = data[0];
 	
 	searchTerm = data[1];
 	inquiry(action);
+}else{
+	 console.log('Please check your spelling.');
+}
+
 });
 break;
     default:
@@ -111,21 +147,35 @@ break;
 function getSong(searchTerm){
 	spotify.search({ type: 'track', query: searchTerm}, function(err, data) {
 	    if (!err){
+
+	    	var results = {
+	    		SongName: data.tracks.items[0].name,
+	    		SongArtist: [],
+	    		SongURL: data.tracks.items[0].preview_url
+	    	};
     //console.log(data.tracks.items[0]);
-       console.log(data.tracks.items[0].name);
+      // console.log(data.tracks.items[0].name);
     //display all artists
         data.tracks.items[0].artists.map(function(key, index, arr){
-        console.log(key.name);
-          });
-        console.log(data.tracks.items[0].preview_url);
-     
-        //fs.appendFile("log.txt", input, function(err, data) {});
+        //console.log(key.name);
+        		var artists = results.SongArtist;
+        		artists.push(key.name);
 
+          });
+        //console.log(data.tracks.items[0].preview_url);
+     	console.log("Song Title: "+ results.SongName);
+     	console.log("Song Artist(s): "+ results.SongArtist);
+     	console.log("Song URL: "+ results.SongURL);
+
+     	var logSong= "Song Title: "+ results.SongName+"\r\n"+"Song Artist(s): "+results.SongArtist+"\r\n"+"Song URL: "+results.SongURL+"\r\n";
+     	logSong = logSong.toString();
+        fs.appendFile("log.txt", logSong+"\r\n", function(err, data) {});
+        	// console.log(results);
 
 
 		// console.log(songAlbum);
       } else {
-        console.log('Spotify is not working');
+        console.log('Please check your spelling.');
       };
 
 });
@@ -168,6 +218,12 @@ function getMovie(searchTerm){
     	console.log("Actors: "+movies.actors);
     	console.log("Rotten Tomatoes Rating: "+movies.tomato.rating);
     	console.log("Rotten Tomato URL: "+movies.tomato.url);
+
+    	var logMovie= "Movie Title: "+movies.title+"\r\n"+"Year Released: "+movies.year+"\r\n"+"IMDB Rating: "+movies.imdb.rating+"\r\n"+"Countries: "+movies.countries+"\r\n"+"Languages: "+data.languages+"\r\n"+"Plot: "+movies.plot+"\r\n"+"Actors: "+movies.actors+"\r\n"+"Rotten Tomatoes Rating: "+movies.tomato.rating+"\r\n"+"Rotten Tomato URL: "+movies.tomato.url+"\r\n";
+     	logMovie = logMovie.toString();
+        fs.appendFile("log.txt", logMovie+"\r\n", function(err, data) {});
+
+
 
    		// console.log(result);
    		});
