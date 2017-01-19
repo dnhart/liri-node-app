@@ -4,7 +4,7 @@ var spotify = require('spotify');
 const imdb = require('imdb-api');
 var omdb = require('omdb');
 var keys =require('./keys.js'); 
-var randomText =require('./random.txt'); 
+// var randomText =require('./random.txt'); 
 
 
 var input= process.argv;
@@ -13,8 +13,11 @@ var searchTerm = input.slice(3);
 searchTerm = searchTerm.toString();
 serachTerm = searchTerm.replace(/,/g, '+');
 
+fs.appendFile("log.txt", input, function(err, data) {});
 
-switch(action){
+
+function inquiry(action) {
+	switch(action){
 
 //tweets
 case "my-tweets":
@@ -82,24 +85,26 @@ case "movie-this":
 	   
 	    } else {
 	    	searchTerm = "Mr. Nobody";
-			searchTerm = searchTerm.toString();
-			serachTerm = searchTerm.replace(/,/g, '+');
+	
 	    	getMovie(searchTerm);
 	 };
     
 break;
 
 case "do-what-it-says":
-var array = fs.readFile(randomText).toString().split(",");
-	// fs.readFile(randomText, "utf8", function(error, data){
-		    // if (err) throw err;
-    console.log(array);
-	// var text = data.split(",");
-	// console.log(text);
 
+fs.readFile("random.txt", "utf8", function(err, contents) {
+	var data = contents.split(",");
+	//console.log(data);
+	action = data[0];
+	
+	searchTerm = data[1];
+	inquiry(action);
+});
 break;
     default:
         return false;
+};
 };
 //*************end switch***************************************
 
@@ -114,6 +119,10 @@ function getSong(searchTerm){
           });
         console.log(data.tracks.items[0].preview_url);
      
+        //fs.appendFile("log.txt", input, function(err, data) {});
+
+
+
 		// console.log(songAlbum);
       } else {
         console.log('Spotify is not working');
@@ -165,3 +174,6 @@ function getMovie(searchTerm){
     };
     });	
 };
+
+
+inquiry(action);
