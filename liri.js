@@ -4,7 +4,7 @@ var spotify = require('spotify');
 const imdb = require('imdb-api');
 var omdb = require('omdb');
 var keys =require('./keys.js'); 
-
+var randomText =require('./random.txt'); 
 
 
 var input= process.argv;
@@ -89,6 +89,15 @@ case "movie-this":
     
 break;
 
+case "do-what-it-says":
+var array = fs.readFile(randomText).toString().split(",");
+	// fs.readFile(randomText, "utf8", function(error, data){
+		    // if (err) throw err;
+    console.log(array);
+	// var text = data.split(",");
+	// console.log(text);
+
+break;
     default:
         return false;
 };
